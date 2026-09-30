@@ -1,6 +1,6 @@
 # REST sürümü: bir HTTP isteği kodda nasıl ilerler?
 
-Bu rehber, projeyi ilk kez gören biri için hazırlanmıştır. Önce [ortak kavramlar rehberini](../README.md) okuyabilirsin. Burada HTTP isteğini gerçek dosya ve fonksiyonları takip ederek veritabanına kadar izleyeceğiz.
+Bu rehber, projeyi ilk kez gören biri için hazırlanmıştır. Önce [ortak kavramlar rehberini](docs/ORTAK-REHBER.md) okuyabilirsin. Burada HTTP isteğini gerçek dosya ve fonksiyonları takip ederek veritabanına kadar izleyeceğiz.
 
 ## REST, HTTP ve JSON ne demek?
 
@@ -34,7 +34,7 @@ Go 1.23 veya üzeri gerekir. Kolay başlatma scripti Bash 4.3+ kullanır; aşağ
 Terminal 1:
 
 ```fish
-cd /home/ykk/PROJE/project-rest
+cd "$(git rev-parse --show-toplevel)"
 ./scripts/run.sh
 ```
 
@@ -53,7 +53,7 @@ Portları değiştirmek için mevcut çalışmayı durdurduktan sonra:
 env GATEWAY_PORT=8001 USER_PORT=8081 HR_PORT=9091 ./scripts/run.sh
 ```
 
-Bu durumda istemcinin Gateway'e `8001` üzerinden bağlanması gerekir. Gateway, özel servis adresleri verilmediyse yeni User ve HR portlarını otomatik kullanır. Diğer ayarlar [ortak rehberde](../README.md) açıklanır.
+Bu durumda istemcinin Gateway'e `8001` üzerinden bağlanması gerekir. Gateway, özel servis adresleri verilmediyse yeni User ve HR portlarını otomatik kullanır. Diğer ayarlar [ortak rehberde](docs/ORTAK-REHBER.md) açıklanır.
 
 ## İlk isteğini gönder
 
@@ -211,7 +211,7 @@ Hata olduğunda ilgili CRUD cevabı `{"error":"..."}` biçimindedir:
 | [000002_add_address.sql](migrations/user/000002_add_address.sql) | `ALTER TABLE` ile sonradan `address` ekler; `Down` ile kaldırır |
 | [000001_create_leaves.sql](migrations/hr/000001_create_leaves.sql) | `id`, `user_id`, `start_date`, `end_date` içeren HR tablosunu oluşturur |
 
-Goose'un nasıl çalıştığı ve adres alanının neden ayrı dosyada olduğu [ortak rehberde](../README.md) açıklanır. CRUD metotlarının içinde Goose çağrısı bulunmaz.
+Goose'un nasıl çalıştığı ve adres alanının neden ayrı dosyada olduğu [ortak rehberde](docs/ORTAK-REHBER.md) açıklanır. CRUD metotlarının içinde Goose çağrısı bulunmaz.
 
 Proje klasöründeyken uygulanmış migration'ları görmek için:
 
@@ -238,7 +238,7 @@ Bu bölüm, üç servisin gerçekten ayrı programlar olduğunu görmek içindir
 Önce bir terminalde tabloları hazırla:
 
 ```fish
-cd /home/ykk/PROJE/PROJECT
+cd "$(git rev-parse --show-toplevel)"
 go run ./cmd/migrate user up
 go run ./cmd/migrate hr up
 ```
@@ -248,21 +248,21 @@ Sonra aşağıdaki üç terminali açık tut.
 Terminal 1 — User Service:
 
 ```fish
-cd /home/ykk/PROJE/PROJECT
+cd "$(git rev-parse --show-toplevel)"
 go run ./cmd/user-service
 ```
 
 Terminal 2 — HR Service:
 
 ```fish
-cd /home/ykk/PROJE/PROJECT
+cd "$(git rev-parse --show-toplevel)"
 go run ./cmd/hr-service
 ```
 
 Terminal 3 — Gateway:
 
 ```fish
-cd /home/ykk/PROJE/PROJECT
+cd "$(git rev-parse --show-toplevel)"
 go run ./cmd/gateway
 ```
 
@@ -294,7 +294,7 @@ Entegrasyon testindeki `gateway(t)`, geçici portlarda gerçek HTTP sunucuları 
 Uygulama çalışırken başka terminalden gerçek Gateway'i sınamak için:
 
 ```fish
-cd /home/ykk/PROJE/project-rest
+cd "$(git rev-parse --show-toplevel)"
 env TEST_GATEWAY_ADDR=127.0.0.1:8000 go test ./integration -run '^TestGatewayCRUD$' -count=1 -v
 ```
 
@@ -303,3 +303,7 @@ Bu özel mod çalışan uygulamada test kayıtları oluşturur, başarılı akı
 ## Kodu hangi sırayla okuyayım?
 
 Önce [cmd/user-service/main.go](cmd/user-service/main.go) ile servisin nasıl açıldığını gör. Sonra [transport/users.go](internal/transport/users.go) içindeki `POST /users` bölümünü, ardından [store/users.go](internal/store/users.go) içindeki `Create` metodunu oku. Daha sonra [Gateway](internal/transport/gateway.go) kodunu açıp isteğin bu servise nasıl geldiğini tamamla. Son olarak aynı akışı [entegrasyon testinde](integration/gateway_test.go) izle.
+
+## Proje dizini
+
+Depoyu istediğiniz klasöre klonlayıp o dizine girin. `git rev-parse --show-toplevel` kullanılan komutlar klonun içinden çalıştırılır; kullanıcı adı veya sabit bir ana dizin gerekmez.
